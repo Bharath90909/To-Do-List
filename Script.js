@@ -7,93 +7,75 @@ const countValue = document.querySelector('.count-value');
 let taskCount = 0;
 
 const displayCount = (taskCount) => {
-  countValue.textContent = taskCount;
+    countValue.textContent = taskCount;
 };
 
 const addTask = () => {
-  const taskName = newTaskInput.value.trim();
-  error.style.display = "none";
-  if (!taskName) {
-    setTimeout(() => {
-      error.style.display = "block";
-    }, 200);
-    return;
-  }
+    const taskName = newTaskInput.value.trim();
+    error.style.display = "none";
+    if (!taskName) {
+        setTimeout(() => {
+            error.style.display = "block";
+        }, 200);
+        return;
+    }
 
-  const task = document.createElement("div");
-  task.classList.add("task");
-  task.innerHTML = `
-    <input type="checkbox" class="task-check"/>
-    <span class="taskname">${taskName}</span>
-    <button class="edit">
-      <i class="fa-solid fa-pen-to-square"></i>
-    </button>
-    <button class="delete">
-      <i class="fa-solid fa-trash"></i>
-    </button>
+    const task = `
+    <div class="task">
+        <input type="checkbox" class="task-check"/>
+        <span class="taskname">${taskName}</span>
+        <button class="edit">
+            <i class="fa-solid fa-pen-to-square"></i>
+        </button>
+        <button class="delete">
+            <i class="fa-solid fa-trash"></i>
+        </button>
+    </div>
   `;
 
-  taskCount++;
-  displayCount(taskCount);
-  newTaskInput.value = "";
-
-  //Editing Tasks
-  const editButtons = task.querySelectorAll(".edit");
-  editButtons.forEach(editBtn => {
-    editBtn.onclick = (event) => {
-      let targetElement = event.target;
-      if (!event.target.className === "edit") {
-        targetElement = event.target.parentElement;
-      }
-      newTaskInput.value = targetElement.previousElementSibling.innerText;
-
-      const checkbox = targetElement.parentElement.querySelector(".task-check");
-      if (!checkbox.checked) {
-        taskCount--;
-        displayCount(taskCount);
-      }
-
-      targetElement.parentNode.remove();
-    };
-  });
-
-  //Deleting Tasks
-  const deleteButtons = task.querySelectorAll('.delete');
-  deleteButtons.forEach(deleteBtn => {
-    deleteBtn.onclick = () => {
-      const task = deleteBtn.parentElement;
-      if (!task.querySelector('.task-check').checked) {
-        taskCount--;
-        displayCount(taskCount);
-      }
-      task.remove();
-    };
-  });
-
-  //CheckBox
-  const taskCheckboxes = task.querySelectorAll('.task-check');
-  taskCheckboxes.forEach(checkbox => {
-    checkbox.onchange = () => {
-      const task = checkbox.parentElement;
-      task.querySelector('.taskname').classList.toggle("completed", checkbox.checked);
-      if (checkbox.checked) {
-        taskCount--;
-      } else {
-        taskCount++;
-      }
-      displayCount(taskCount);
-    };
-  });
-
-  tasksContainer.appendChild(task);
+    taskCount++;
+    displayCount(taskCount);
+    newTaskInput.value = "";
+    tasksContainer.insertAdjacentHTML('beforeend', task);
 };
 
 addBtn.addEventListener('click', addTask);
 newTaskInput.addEventListener('keyup', (event) => event.key === 'Enter' && addTask());
 
+tasksContainer.addEventListener('click', (event) => {
+    const targetElement = event.target;
+    if (targetElement.classList.contains('edit')) {
+        newTaskInput.value = targetElement.previousElementSibling.innerText;
+        const checkbox = targetElement.parentElement.querySelector(".task-check");
+        if (!checkbox.checked) {
+            taskCount--;
+            displayCount(taskCount);
+        }
+        targetElement.parentElement.remove();
+    }
+    else if (targetElement.classList.contains('delete')) {
+        const task = targetElement.parentElement;
+        if (!task.querySelector('.task-check').checked) {
+            taskCount--;
+            displayCount(taskCount);
+        }
+        task.remove();
+    }
+    else if (targetElement.classList.contains('task-check')) {
+        const task = targetElement.parentElement;
+        task.querySelector('.taskname').classList.toggle("completed", targetElement.checked);
+        if (targetElement.checked) {
+            taskCount--;
+        } else {
+            taskCount++;
+        }
+        displayCount(taskCount);
+    };
+});
+
 window.onload = () => {
-  taskCount = 0;
-  displayCount(taskCount);
-  newTaskInput.value = "";
+    taskCount = 0;
+    displayCount(taskCount);
+    newTaskInput.value = "";
 };
 
